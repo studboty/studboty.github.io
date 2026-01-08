@@ -1,0 +1,87 @@
+async function imageUrlToBase64(url) {
+  try {
+    const response = await fetch(url); 
+    const blob = await response.blob();
+    const reader = new FileReader(); 
+    return new Promise((resolve, reject) => {
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob); 
+    });
+  } catch (error) {
+    console.error("Error converting image:", error);
+    return null;
+  }
+}
+
+async function checkifinadmin() {
+  if(firebase.database().ref(`users/${sessionStorage.getItem("uid")}/role`) == "admin") return true 
+  else return false
+}
+
+async function ensureUserSchema(uid, defaultSchema) {
+  const ref = firebase.database().ref("users/" + uid);
+
+  const snap = await ref.once("value");
+  const user = snap.val() || {};
+
+  const updates = {};
+  let changed = false;
+
+  for (const key in defaultSchema) {
+    if (!(key in user)) {
+      const val = typeof defaultSchema[key] === "function"
+        ? defaultSchema[key]()
+        : defaultSchema[key];
+
+      updates[key] = val;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    await ref.update(updates);
+    console.log("User schema repaired:", uid, updates);
+  }
+}
+
+function safeAtob(v){
+  try { return atob(v); } catch (e) { 
+    console.warn("Base64 decode failed:", v, e);
+    return null;
+  }
+}
+
+async function fetchPasswords() {
+  console.log("Fetching /info from Firebase...");
+
+  const snap = await firebase.database().ref("info").once("value");
+  const data = snap.val();
+  if (!data) return [];
+
+  const year = new Date().getFullYear().toString().slice(-2);
+  console.log("Year suffix:", year);
+
+  const results = [];
+
+  for (const key of ["fireauth", "free" , "fireauth2"]) {
+    const raw = data[key];
+    if (typeof raw !== "string") continue;
+
+    const decoded = safeAtob(raw);
+    if (decoded) results.push(decoded + year);
+  }
+
+  return results;
+}
+
+
+
+
+const defaultUserSchema = {"created": () => Date.now(),"email" :"","icon" : "" ,  "online": false,"role": "", "timeSpent": 0, "banned": false, "name": ""};
+
+
+window.imageUrlToBase64 = imageUrlToBase64;
+window.checkifinadmin = checkifinadmin;
+window.ensureUserSchema = ensureUserSchema;
+window.fetchPasswords = fetchPasswords;
