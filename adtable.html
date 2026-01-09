@@ -73,102 +73,97 @@ button.normal:hover { background:#2ea043; }
 <script src="./js/user.js"></script>
 <script src="js/uttils.js"></script>
 <script>
-const OWNER_EMAIL = ["advikmurthy12@gmail.com","664904@stu.sandi.net"];
+/* ===== CONFIG ===== */
+const OWNER_EMAIL = ["advikmurthy12@gmail.com","664904@stu.sandi.net"].map(e=>e.toLowerCase());
+
 const table = document.getElementById("adminTable");
 const search = document.getElementById("search");
 const navLeft = document.getElementById("nav-left");
-const navRight = document.getElementById("nav-right")
+const navRight = document.getElementById("nav-right");
+
 let cache = {};
 
-
-function createNavTitle(text, href) {
-        const h3 = document.createElement('h3');
-        h3.textContent = text;
-        h3.style.cursor = 'pointer';
-        h3.onclick = () => window.location.href = href;
-        return h3;
-      }
-
-if (sessionStorage.getItem("freeAccess") == "true") {
-  navLeft.appendChild(createNavTitle("Gammer HUBS - Admin", "./games.html?free=True"));
-  navRight.appendChild(createNavTitle('Leaderboard', './leaderboard.html?frees=True'));
-}
-if (sessionStorage.getItem("isAdmin") == "true") {
-  navLeft.appendChild(createNavTitle("Gammer HUBS - Admin", "./games.html?admin=True"));
-  navRight.appendChild(createNavTitle('Leaderboard', './leaderboard.html?frees=true'));
+/* ===== NAV ===== */
+function createNavTitle(text, href){
+  const h3 = document.createElement("h3");
+  h3.textContent = text;
+  h3.onclick = () => location.href = href;
+  return h3;
 }
 
+if(sessionStorage.getItem("isAdmin")==="true"){
+  navLeft.appendChild(createNavTitle("Gammer HUBS - Admin","./games.html?admin=True"));
+  navRight.appendChild(createNavTitle("Leaderboard","./leaderboard.html?frees=true"));
+}else if(sessionStorage.getItem("freeAccess")==="true"){
+  navLeft.appendChild(createNavTitle("Gammer HUBS","./games.html?free=True"));
+  navRight.appendChild(createNavTitle("Leaderboard","./leaderboard.html?free=true"));
+}
 
-// Listen for users in Firebase
-firebase.database().ref("users").on("value", snap => {
+/* ===== FIREBASE LISTENER ===== */
+firebase.database().ref("users").on("value", snap=>{
   cache = snap.val() || {};
   renderTable();
 });
 
 search.oninput = renderTable;
 
-// Render the admin table
-function renderTable() {
+/* ===== RENDER TABLE ===== */
+function renderTable(){
   const q = search.value.toLowerCase();
   table.innerHTML = "";
 
-  const users = Object.entries(cache)
-                      .filter(([uid,u]) => u.email.toLowerCase().includes(q))
-                      .sort((a,b) => (b[1].timeSpent||0) - (a[1].timeSpent||0));
+  Object.entries(cache)
+    .filter(([_,u]) => (u.email||"").toLowerCase().includes(q))
+    .sort((a,b)=>(b[1].timeSpent||0)-(a[1].timeSpent||0))
+    .forEach(([uid,u],i)=>{
+      const isOwner = OWNER_EMAIL.includes((u.email||"").toLowerCase());
+      const seconds = u.timeSpent||0;
+      const h = Math.floor(seconds/3600);
+      const m = Math.floor(seconds%3600/60);
+      const s = seconds%60;
 
-  users.forEach(([uid,u], idx) => {
-    const isOwner = OWNER_EMAIL.some(email => u.email.toLowerCase() === email.toLowerCase());
-    const icon = u.icon || "https://www.encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRMxQNpli6ElVRQIZEVFxHK10jxx2LYteBebsjQLO2IK8PG7dFJ2Ix-Fr8t8uFW8m4JgG9blzHwcvuymWUKCW46tVFBvVpx5EMFUqibw&s=10";
-
-    const seconds = u.timeSpent || 0;
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    const online = u.online ? "Yes" : "No";
-    const name = u.name || "N/A";
-    const timeStr = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-
-    const leaderboardBanText = u.banned ? "Unban" : "Ban";
-
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td class="rank">#${idx+1}</td>
-      <td><img class="profile-icon" src="${icon}"></td>
-      <td>${u.email}</td>
-      <td>${u.role}${isOwner?" (Owner)":""}</td>
-      <td>${name}</td>
-      <td>${timeStr}</td>
-      <td>${online}</td>
-      <td><button class="normal" data-action="leaderboardBan" data-uid="${uid}" ${isOwner?"disabled":""}>${leaderboardBanText}</button></td>
-      <td>
-        <button class="danger" data-action="ban" data-uid="${uid}" ${isOwner?"disabled":""}>Ban</button>
-        <button class="normal" data-action="unban" data-uid="${uid}" ${isOwner?"disabled":""}>Unban</button>
-        <button class="normal" data-action="makeadmin" data-uid="${uid}" ${isOwner?"disabled":""}>Make Admin</button>
-      </td>
-    `;
-    table.appendChild(row);
-  });
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="rank">#${i+1}</td>
+        <td><img class="profile-icon" src="${u.icon||'https://i.imgur.com/0y8Ftya.png'}"></td>
+        <td>${u.email||"N/A"}</td>
+        <td>${u.role||"user"}${isOwner?" (Owner)":""}</td>
+        <td>${u.name||"N/A"}</td>
+        <td>${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</td>
+        <td>${u.online?"Yes":"No"}</td>
+        <td>
+          <button class="${u.banned?'danger':'normal'}" data-action="leaderboard" data-uid="${uid}" ${isOwner?"disabled":""}>
+            ${u.banned?'Unban':'Ban'}
+          </button>
+        </td>
+        <td>
+          <button class="danger" data-action="ban" data-uid="${uid}" ${isOwner?"disabled":""}>Ban</button>
+          <button class="normal" data-action="unban" data-uid="${uid}" ${isOwner?"disabled":""}>Unban</button>
+          <button class="normal" data-action="admin" data-uid="${uid}" ${isOwner?"disabled":""}>Make Admin</button>
+        </td>
+      `;
+      table.appendChild(row);
+    });
 }
 
-// Handle control buttons
-table.onclick = function(e){
-  const btn = e.target;
+/* ===== BUTTON HANDLER ===== */
+table.onclick = e=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+
   const uid = btn.dataset.uid;
-  if(!uid) return;
   const user = cache[uid];
   if(!user) return;
-  const isOwner = user.email.toLowerCase() === OWNER_EMAIL;
-  if(isOwner) return;
 
-  const action = btn.dataset.action;
+  if(OWNER_EMAIL.includes((user.email||"").toLowerCase())) return;
 
-  if(action === "ban") window.editUserProp(uid,"role","blocked");
-  if(action === "unban") window.editUserProp(uid,"role","user");
-  if(action === "makeadmin") window.editUserProp(uid,"role","admin");
-  if(action === "leaderboardBan") {
-    window.editUserProp(uid,"banned", !user.banned);
-  }
+  if(btn.dataset.action==="ban") editUserProp(uid,"role","blocked");
+  if(btn.dataset.action==="unban") editUserProp(uid,"role","user");
+  if(btn.dataset.action==="admin") editUserProp(uid,"role","admin");
+  if(btn.dataset.action==="leaderboard") editUserProp(uid,"banned",!user.banned);
 };
 </script>
+
 </body>
 </html>
+
