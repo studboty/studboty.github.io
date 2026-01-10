@@ -1,23 +1,4 @@
 // user.js - Firebase v8
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAIzv7rOF5LtQmC1AVeQqAjrGHUZnJomFY",
-  authDomain: "track-study-9f2eb.firebaseapp.com",
-  projectId: "track-study-9f2eb",
-  storageBucket: "track-study-9f2eb.firebasestorage.app",
-  messagingSenderId: "461107985386",
-  appId: "1:461107985386:web:15c694a7c946da0a5d1093",
-  databaseURL: "https://track-study-9f2eb-default-rtdb.firebaseio.com"
-};
-
-// Init Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-db.goOnline();
-
-
 db.ref(".info/connected").on("value", snap => {
   console.log("db connected:", snap.val());
 });
@@ -122,3 +103,4 @@ window.editUserProp = editUserProp;
 window.deleteUserProp = deleteUserProp;
 window.trackUserOnlineStatus = trackUserOnlineStatus;
 window.trackUser = trackUser;
+

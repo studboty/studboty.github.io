@@ -163,10 +163,10 @@ const tabItem = (tab) => {
 };
 
 const tabFrame = (tab) => {
-  return iframe({
+  const iframeEl = iframe({
     class: "tab-frame",
-    src: tab.proxiedUrl,
-    sandbox: "allow-scripts allow-forms allow-same-origin",
+    // Relaxed sandbox for logins (popups/modals) and general functionality
+    sandbox: "allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation allow-orientation-lock allow-pointer-lock",
     onload: (e) => {
       let parts = e.target.contentWindow.location.pathname.slice(1).split("/");
       let targetUrl = decodeURIComponent(
@@ -195,6 +195,22 @@ const tabFrame = (tab) => {
       );
     },
   });
+
+  // Cloaking Logic: Use Blob URL to hide the actual proxy URL from simple extension scanners
+  // We fetch the src first (this might be a bit tricky if the proxy returns a redirect, 
+  // but for the initial load we can try to set src directly. 
+  // Actually, setting src directly on iframe IS the standard way. 
+  // The 'Blocksi' blocks usually happen because the URL bar contains a blocked keyword/domain.
+  // Using 'about:blank' or a Blob URL for the iframe src *initially* can help, 
+  // but we still need to load the content.
+  // 
+  // Better approach for Blocksi: The 'Blob' cloaking usually means executing the HTML inside a blob.
+  // However, UV proxy needs to run from the origin. 
+  // So we just set the src normally but rely on the relax sandbox to allow redirects/popups for Auth.
+
+  iframeEl.src = tab.proxiedUrl;
+
+  return iframeEl;
 };
 
 function focusTab(tab) {
@@ -248,7 +264,16 @@ async function addTab(link) {
   focusTab(tab);
 }
 
-addTab("uvsearch.rhw.one");
+// Restore tabs from session or load default
+const savedTabs = JSON.parse(localStorage.getItem("tabs"));
+
+if (savedTabs && savedTabs.length > 0) {
+  savedTabs.forEach((url) => {
+    addTab(url);
+  });
+} else {
+  addTab("uvsearch.rhw.one");
+}
 
 const urlParams = new URLSearchParams(window.location.search);
 
