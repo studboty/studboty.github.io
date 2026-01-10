@@ -82,6 +82,7 @@
       font-size: 0.95em;
     }
 
+<<<<<<< HEAD
     th,
     td {
       padding: 12px;
@@ -162,21 +163,78 @@
     }
   </style>
 </head>
+=======
+<div id="adminApp">
+  <h1>Admin Control Panel</h1>
+  <input id="search" placeholder="Search by email...">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Profile</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Name</th>
+        <th>Time Spent</th>
+        <th>Online</th>
+        <th>Leaderboard Ban</th>
+        <th>Controls</th>
+      </tr>
+    </thead>
+    <tbody id="adminTable"></tbody>
+  </table>
+</div>
+<script src="./js/user.js"></script>
+<script src="js/uttils.js"></script>
+<script>
+/* ===== CONFIG ===== */
+const OWNER_EMAIL = ["advikmurthy12@gmail.com","664904@stu.sandi.net"].map(e=>e.toLowerCase());
 
+const table = document.getElementById("adminTable");
+const search = document.getElementById("search");
+const navLeft = document.getElementById("nav-left");
+const navRight = document.getElementById("nav-right");
+
+let cache = {};
+
+/* ===== NAV ===== */
+function createNavTitle(text, href){
+  const h3 = document.createElement("h3");
+  h3.textContent = text;
+  h3.onclick = () => location.href = href;
+  return h3;
+}
+
+if(sessionStorage.getItem("isAdmin")==="true"){
+  navLeft.appendChild(createNavTitle("Gammer HUBS - Admin","./games.html?admin=True"));
+  navRight.appendChild(createNavTitle("Leaderboard","./leaderboard.html?frees=true"));
+}else if(sessionStorage.getItem("freeAccess")==="true"){
+  navLeft.appendChild(createNavTitle("Gammer HUBS","./games.html?free=True"));
+  navRight.appendChild(createNavTitle("Leaderboard","./leaderboard.html?free=true"));
+}
+
+/* ===== FIREBASE LISTENER ===== */
+firebase.database().ref("users").on("value", snap=>{
+  cache = snap.val() || {};
+  renderTable();
+});
 <body>
 
-  <nav>
-    <div id='nav-left'>
+/* ===== RENDER TABLE ===== */
+function renderTable(){
+  const q = search.value.toLowerCase();
+  table.innerHTML = "";
 
-    </div>
-    <div id="nav-right">
-      <img src="images/panic.png" alt="Panic" title="Panic Button"
-        onclick="window.location.href='https://classroom.google.com'">
-      <img src="images/chat.png" alt="Chat" title="Chat"
-        onclick="window.location.href='https://lolfactor39.github.io/chat/'">
-    </div>
-  </nav>
+  Object.entries(cache)
+    .filter(([_,u]) => (u.email||"").toLowerCase().includes(q))
+    .sort((a,b)=>(b[1].timeSpent||0)-(a[1].timeSpent||0))
+    .forEach(([uid,u],i)=>{
+      const isOwner = OWNER_EMAIL.includes((u.email||"").toLowerCase());
+      const seconds = u.timeSpent||0;
+      const h = Math.floor(seconds/3600);
+      const m = Math.floor(seconds%3600/60);
 
+<<<<<<< HEAD
   <div id="adminApp">
     <h1>Admin Control Panel</h1>
     <input id="search" placeholder="Search by email...">
@@ -272,23 +330,44 @@
           </button>
           
           <button class="normal" data-action="admin" data-uid="${uid}" ${isOwner ? "disabled" : ""}>Make Admin</button>
+=======
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="rank">#${i+1}</td>
+        <td><img class="profile-icon" src="${u.icon||'https://i.imgur.com/0y8Ftya.png'}"></td>
+        <td>${u.email||"N/A"}</td>
+        <td>${u.role||"user"}${isOwner?" (Owner)":""}</td>
+        <td>${u.name||"N/A"}</td>
+        <td>${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}</td>
+        <td>${u.online?"Yes":"No"}</td>
+        <td>
+          <button class="${u.banned?'danger':'normal'}" data-action="leaderboard" data-uid="${uid}" ${isOwner?"disabled":""}>
+            ${u.banned?'Unban':'Ban'}
+          </button>
+        </td>
+        <td>
+          <button class="danger" data-action="ban" data-uid="${uid}" ${isOwner?"disabled":""}>Ban</button>
+          <button class="normal" data-action="unban" data-uid="${uid}" ${isOwner?"disabled":""}>Unban</button>
+          <button class="normal" data-action="admin" data-uid="${uid}" ${isOwner?"disabled":""}>Make Admin</button>
+>>>>>>> parent of a6afd47 (adas)
         </td>
       `;
-          table.appendChild(row);
-        });
-    }
+      table.appendChild(row);
+    });
+}
 
-    /* ===== BUTTON HANDLER ===== */
-    table.onclick = e => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
+/* ===== BUTTON HANDLER ===== */
+table.onclick = e=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
 
-      const uid = btn.dataset.uid;
-      const user = cache[uid];
-      if (!user) return;
+  const uid = btn.dataset.uid;
+  const user = cache[uid];
+  if(!user) return;
 
-      if (OWNER_EMAIL.includes((user.email || "").toLowerCase())) return;
+  if(OWNER_EMAIL.includes((user.email||"").toLowerCase())) return;
 
+<<<<<<< HEAD
       // Toggle Ban Logic
       if (btn.dataset.action === "toggleBan") {
         if (user.role === "blocked") {
@@ -302,7 +381,15 @@
       if (btn.dataset.action === "leaderboard") editUserProp(uid, "banned", !user.banned); // This is LB ban
     };
   </script>
+=======
+  if(btn.dataset.action==="ban") editUserProp(uid,"role","blocked");
+  if(btn.dataset.action==="unban") editUserProp(uid,"role","user");
+  if(btn.dataset.action==="admin") editUserProp(uid,"role","admin");
+  if(btn.dataset.action==="leaderboard") editUserProp(uid,"banned",!user.banned);
+};
+</script>
+>>>>>>> parent of a6afd47 (adas)
 
 </body>
-
 </html>
+
