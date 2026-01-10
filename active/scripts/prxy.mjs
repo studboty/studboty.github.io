@@ -28,48 +28,33 @@ export async function getUV(input) {
 
   let url = search(input, "https://html.duckduckgo.com/html?t=h_&q=%s");
 
-  /* 
-    Wisp Server Rotation Logic:
-    We try servers in order. Ideally, we'd verify them with a ping, but for now we set the transport 
-    and if it fails (throws), we try the next.
-  */
   const wispServers = [
-    "wss://wisp.lupinevault.com/", // Less usage, cleaner IP?
-    "wss://wisp.mercurywork.shop/",
-    "wss://wisp.rhw.one/",
-    "wss://epoxy.advik.workers.dev/"
+    "wss://wisp.lupinevault.com/", // Project Owner's - Often more reliable
+    "wss://wisp.rhw.one/", // Backup
+    "wss://wisp.mercurywork.shop/", // Was throttling
+    "wss://epoxy.advik.workers.dev/" // Additional backup if available
   ];
 
-  let connected = false;
+  // Stick to the primary server for stability. Random selection was hitting dead servers.
+  // Changed to rhw.one as lupinevault was being throttled/refusing connection.
+  const selectedWisp = "wss://wisp.rhw.one/";
+  console.log("[Proxy] Using Primary Wisp Server:", selectedWisp);
 
-  for (const server of wispServers) {
-    try {
-      console.log(`[Proxy] Attempting connection to Wisp: ${server}`);
-      // BareMux connection setup
-      if ((await connection.getTransport()) !== "/active/prxy/epoxy/index.mjs" || currentWisp !== server) {
-        await connection.setTransport("/active/prxy/epoxy/index.mjs", [{ wisp: server }]);
-        currentWisp = server; // Track which one is active
-      }
-      console.log(`[Proxy] Connected to ${server}`);
-      connected = true;
-      break; // Success!
-    } catch (e) {
-      console.warn(`[Proxy] Failed to connect to ${server}:`, e);
-      // Continue to next server
-    }
+  if ((await connection.getTransport()) !== "/active/prxy/epoxy/index.mjs") {
+    await connection.setTransport("/active/prxy/epoxy/index.mjs", [
+      { wisp: selectedWisp },
+    ]);
   }
-
-  if (!connected) {
-    rAlert("Failed to connect to any Wisp server. Check your internet or try again later.");
-    throw new Error("All Wisp servers failed.");
+  // Try libcurl as secondary transport if needed, though usually one is active. 
+  // The original code checked both.
+  if ((await connection.getTransport()) !== "/active/prxy/libcurl/libcurl.mjs") {
+    // NOTE: This logic in original file seemed mutually exclusive or redundant if it's checking '!= ...'
+    // If the first if executes, the second might also execute if it just checks current state.
+    // However, usually we just want ONE transport active. 
+    // We will stick to epoxy as it's generally better for games like bloxd.io (Wisp support).
   }
-
-  // Fallback check for libcurl is removed as it causes issues with bloxd.io (needs WS)
 
   let viewUrl = __uv$config.prefix + __uv$config.encodeUrl(url);
 
   return viewUrl;
 }
-
-// Global to track current connection so we don't reconnect needlessly
-let currentWisp = null;
