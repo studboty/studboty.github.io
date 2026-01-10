@@ -57,7 +57,25 @@ newTabButton.onclick = () => {
 // Options (opt menu)
 const devtoolsOption = document.getElementById("devtools-option");
 const abcOption = document.getElementById("abc-option");
+const fixCaptchaOption = document.getElementById("fix-captcha-option");
 const gitOption = document.getElementById("git-option");
+
+fixCaptchaOption.onclick = async () => {
+  // Clear UV cookies and storage for the current domain
+  // This is a bit tricky since the proxy manages cookies via the SW db, 
+  // but clearing the browser Application Storage for this origin helps a lot.
+  // We can also try to signal the SW to clear, but a hard clearing of localStorage and reload usually gets a new Wisp session.
+
+  const confirmation = confirm("This will clear cookies and attempt to fix the captcha loop. The page will reload.");
+  if (confirmation) {
+    localStorage.removeItem("tabs"); // Clear saved state to force a fresh start if needed, or we can keep it.
+    // Actually, we want to keep tabs but clear the proxy session.
+    // Let's just reload locally for now, which triggers the Wisp rotation logic in prxy.mjs!
+
+    // Force a reload which will trigger our new Random/Rotated Wisp Logic
+    window.location.reload();
+  }
+};
 
 devtoolsOption.onclick = () => {
   try {

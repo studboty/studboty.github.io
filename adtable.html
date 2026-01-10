@@ -249,6 +249,8 @@
           const m = Math.floor(seconds % 3600 / 60);
           const s = seconds % 60;
 
+          const isBanned = u.role === "blocked";
+
           const row = document.createElement("tr");
           row.innerHTML = `
         <td class="rank">#${i + 1}</td>
@@ -260,12 +262,15 @@
         <td>${u.online ? "Yes" : "No"}</td>
         <td>
           <button class="${u.banned ? 'danger' : 'normal'}" data-action="leaderboard" data-uid="${uid}" ${isOwner ? "disabled" : ""}>
-            ${u.banned ? 'Unban' : 'Ban'}
+            ${u.banned ? 'Unban (LB)' : 'Ban (LB)'}
           </button>
         </td>
         <td>
-          <button class="danger" data-action="ban" data-uid="${uid}" ${isOwner ? "disabled" : ""}>Ban</button>
-          <button class="normal" data-action="unban" data-uid="${uid}" ${isOwner ? "disabled" : ""}>Unban</button>
+          <!-- Consolidated Toggle Button -->
+          <button class="${isBanned ? 'normal' : 'danger'}" data-action="toggleBan" data-uid="${uid}" ${isOwner ? "disabled" : ""}>
+            ${isBanned ? 'Unban' : 'Ban'}
+          </button>
+          
           <button class="normal" data-action="admin" data-uid="${uid}" ${isOwner ? "disabled" : ""}>Make Admin</button>
         </td>
       `;
@@ -284,10 +289,17 @@
 
       if (OWNER_EMAIL.includes((user.email || "").toLowerCase())) return;
 
-      if (btn.dataset.action === "ban") editUserProp(uid, "role", "blocked");
-      if (btn.dataset.action === "unban") editUserProp(uid, "role", "user");
+      // Toggle Ban Logic
+      if (btn.dataset.action === "toggleBan") {
+        if (user.role === "blocked") {
+          editUserProp(uid, "role", "user"); // Unban
+        } else {
+          editUserProp(uid, "role", "blocked"); // Ban
+        }
+      }
+
       if (btn.dataset.action === "admin") editUserProp(uid, "role", "admin");
-      if (btn.dataset.action === "leaderboard") editUserProp(uid, "banned", !user.banned);
+      if (btn.dataset.action === "leaderboard") editUserProp(uid, "banned", !user.banned); // This is LB ban
     };
   </script>
 

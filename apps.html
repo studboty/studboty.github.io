@@ -7,134 +7,159 @@
     <title>Gamer Hubs - Apps</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* Reusing style.css but adding specific overrides if needed */
+        /* Premium UI Styles */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             margin: 0;
-            background: linear-gradient(to bottom right, #f7f7f7, #e0e6f0);
-            color: #333;
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a40 100%);
+            color: #fff;
+            min-height: 100vh;
         }
 
-        /* Category Headers */
-        .category-header {
-            width: 100%;
-            padding: 15px 20px;
-            margin-top: 20px;
-            border-bottom: 2px solid #3b82f6;
-            color: #3b82f6;
-            font-size: 24px;
-            font-weight: bold;
-            grid-column: 1 / -1;
-            /* Span full width of grid */
+        /* Navigation */
+        nav {
+            background: rgba(30, 30, 48, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+            color: #ccc;
+            transition: color 0.3s;
+        }
+
+        nav h3:hover {
+            color: #fff;
         }
 
         /* Search Section */
         #search-section {
             text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.8);
+            padding: 40px 20px;
+            background: transparent;
+        }
+
+        #search-section h1 {
+            color: #fff;
             margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: 700;
         }
 
         #app-search {
-            width: 60%;
-            max-width: 500px;
-            padding: 12px;
-            font-size: 18px;
-            border: 1px solid #ccc;
-            border-radius: 25px;
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 25px;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
             outline: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
             transition: 0.3s;
+            backdrop-filter: blur(5px);
         }
 
         #app-search:focus {
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
             border-color: #3b82f6;
         }
 
-        /* Grid */
+        /* App Grid */
         #itemList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 25px;
+            padding: 20px 40px;
             list-style: none;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* App Items */
+        /* Category Headers */
+        .category-header {
+            grid-column: 1 / -1;
+            font-size: 20px;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* App Cards */
         #itemList li {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            height: 180px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            aspect-ratio: 1/1;
+            /* Square cards */
         }
 
         #itemList li:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .thumb {
-            width: 80px;
-            height: 80px;
-            background-size: cover;
+            width: 64px;
+            height: 64px;
+            background-size: contain;
+            background-repeat: no-repeat;
             background-position: center;
-            border-radius: 15px;
+            border-radius: 12px;
             margin-bottom: 15px;
-            background-color: #f0f0f0;
+            background-color: transparent;
+            /* Icons usually have transparency */
         }
 
         .text-overlay {
-            font-weight: 600;
-            font-size: 16px;
-            padding: 0 10px;
-            color: #444;
+            font-weight: 500;
+            font-size: 14px;
+            color: #eee;
+            line-height: 1.4;
         }
 
-        /* Navigation Buttons */
-        nav {
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e2f;
+        }
+
+        ::-webkit-scrollbar-thumb {
             background: #3b82f6;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
         }
 
-        nav h3 {
-            margin: 0;
-            font-size: 20px;
-        }
-
-        #nav-right button,
-        #nav-right h3 {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            margin-left: 20px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background 0.2s;
-            display: inline-block;
-        }
-
-        #nav-right button:hover,
-        #nav-right h3:hover {
-            background: rgba(255, 255, 255, 0.2);
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
         }
     </style>
 </head>
@@ -143,12 +168,39 @@
 
     <nav>
         <div id='nav-left'>
-            <h3 onclick="window.location.href='./games.html'" style="cursor:pointer;">&larr; Back to Games</h3>
+            <h3 id="back-btn" style="cursor:pointer;">&larr; Back to Games</h3>
         </div>
         <div id="nav-right">
             <h3 onclick="window.location.href='./active/index.html'">Proxy</h3>
         </div>
     </nav>
+
+    <script>
+        // Navigation Logic to preserve user role
+        const backBtn = document.getElementById('back-btn');
+        backBtn.onclick = () => {
+            // Check URL params first (if they came from a bookmark/link with params)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'True') {
+                window.location.href = './games.html?admin=True';
+                return;
+            }
+            if (urlParams.get('free') === 'True') {
+                window.location.href = './games.html?free=True';
+                return;
+            }
+
+            // Fallback to SessionStorage (if they navigated normally)
+            if (sessionStorage.getItem("isAdmin") === "true") {
+                window.location.href = './games.html?admin=True';
+            } else if (sessionStorage.getItem("freeAccess") === "true") {
+                window.location.href = './games.html?free=True';
+            } else {
+                // Return query
+                window.location.href = './games.html?admin=False';
+            }
+        };
+    </script>
 
     <div id="search-section">
         <h1 style="color:#333; margin-bottom:10px;">Apps Library</h1>
