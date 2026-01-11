@@ -34,6 +34,10 @@ body::-webkit-scrollbar-thumb {
   background-color: rgb(138, 138, 138);
 }
 
+.no-cursor-pointer {
+  cursor: default;
+}
+
 /* --- Navigation bar --- */
 nav {
   background-color: #333333;

@@ -13,6 +13,9 @@
             background: linear-gradient(to bottom right, #f7f7f7, #e0e6f0);
             color: #333;
         }
+        .no-cursor-pointer {
+            cursor: default;
+        }
 
         header {
             background: #3b82f6;
@@ -143,7 +146,7 @@
 <body>
 
     <header>Math Learning Hub</header>
-    <div id="secretButton" onclick="openSecret()"></div>
+    <div id="secretButton" onclick="openSecret()" class="no-cursor-pointer"></div>
     <div id="thestuff"></div>
 
     <div class="container">
