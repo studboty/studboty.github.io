@@ -265,6 +265,7 @@
                 trackUser(user.uid);
 
                 if (!role) role = data.role;
+                if (role === "blocked") {window.location.href = "google.com"}
 
                 const src = role === "admin" ? "./games.html?admin=True" : "./games.html?admin=False";
                 launchIframe(src);
@@ -397,5 +398,6 @@
     </footer>
 
 </body>
+
 
 </html>
