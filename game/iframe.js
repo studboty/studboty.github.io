@@ -119,7 +119,7 @@ async function smartLoadGame(id) {
     const manifests = [
         "../files/folders.json",
         "../files/other.json",
-        "https://mathlearnhub.github.io/Learning-Tools/listfolders.json"
+        "https://studboty.github.io.github.io/Learning-Tools/listfolders.json"
     ];
 
     // 1️Check Proxy first
@@ -148,7 +148,7 @@ async function smartLoadGame(id) {
                 return;
             }
             if (url.includes("Learning-Tools")) {
-                iframe.src = `https://mathlearnhub.github.io/Learning-Tools/${id}/index.html`;
+                iframe.src = `https://studboty.github.io.github.io/Learning-Tools/${id}/index.html`;
                 console.log("📚 Learning Tool:", iframe.src);
                 return;
             }
@@ -173,7 +173,7 @@ async function smartLoadGame(id) {
         `../files/flash/#${encodeURIComponent(id)}`,
         `../files/${id}/index.html`,
         `../files/other/${id}/index.html`,
-        `https://mathlearnhub.github.io/Learning-Tools/${id}/index.html`
+        `https://studboty.github.io.github.io/Learning-Tools/${id}/index.html`
     ];
 
     for (const path of guesses) {

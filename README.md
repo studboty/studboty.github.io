@@ -1,2 +1,2 @@
-# MathLearnHub.github.io
-MathLearnHub
+# studboty.github.io
+studboty.github.io
